@@ -1,0 +1,45 @@
+[PYDIFFRACTION]
+
+# the name of the pdb file with atomic coordinates
+pdbname = U-10GPa-compressed_rotated.pdb
+
+# the path where output files will be saved
+outpath = ./output/
+
+# the tag is prepended to all output files
+# change it if you don't want to overwrite previous results
+tag = U-10GPa-compressed_rotated_henke
+
+# the file extension for output files
+fext = .npy
+
+# display the saxs pattern
+display = False
+
+# the number of pixels along the side of the detector
+nx = 256
+
+# the sample to detector distance (metres)
+dz = 0.006
+
+# the photon wavelength (metres) 
+wl = 1.0e-10
+
+# the pixel width (metres)
+pw = 5e-5
+
+# Use Henke parameters for the wavelength dependence
+# of the x-ray scattering factors (True/False)
+henkeflag = True
+
+#
+# SAXS parameters
+#
+
+# a negative number defaults to saxs_nr = 10*nx
+saxs_nr = 12500
+saxs_norm_rmin = 10
+saxs_norm_rmax = 20
+saxs_box_nx = 200
+
+
