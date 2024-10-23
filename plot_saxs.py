@@ -35,9 +35,9 @@ gaussian_bin_width = 1
 #elems = ["C", "N", "B", "O"] 
 
 #experimental data
-efile = "N44Ethnl_data.txt"
-edata = np.loadtxt( efile, skiprows=2, delimiter="\t")
-print(edata.shape)
+#efile = "N44Ethnl_data.txt"
+#edata = np.loadtxt( efile, skiprows=2, delimiter="\t")
+#print(edata.shape)
 
 #
 # Start plotting! 
@@ -62,7 +62,7 @@ print( "Debug iqe", len(iqe[0]))
 
 #Plot S(q)
 plt.figure()
-plt.plot( edata[:,0], edata[:,1] )
+#plt.plot( edata[:,0], edata[:,1] )
 plt.plot( sp.qpoints[iq], disp[iq] )
 plt.xlabel(r"q ($\mathrm{\AA}^{-1}$)")
 plt.ylabel("S(q)")
