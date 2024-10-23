@@ -387,7 +387,7 @@ class sfdata:
         """
         fname = elem+".nff"
         hpath = os.path.dirname(os.path.abspath(__file__))+"/henke/"
-        print("debug hpath:", hpath)
+        #print("debug hpath:", hpath)
         self.hdata = np.loadtxt( hpath+fname, skiprows=1 )
 
     # get a specific value for the wavelength being used
@@ -404,7 +404,7 @@ class sfdata:
         [f0, f1] : numpy array, floats
             f0 and f1 values
         """
-        print("debug energy", energy, np.max(self.hdata))
+        #print("debug energy", energy, np.max(self.hdata))
         for i in np.arange(self.hdata.shape[0]-1):
                         
             if (energy>self.hdata[i,0])and(energy<self.hdata[i+1,0]):
