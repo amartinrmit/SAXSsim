@@ -438,6 +438,7 @@ class diffraction(sfdata):
         rmax = self.nx/self.q1d[-1]
         if nr<0: nr = self.nx*10
         r = np.arange(nr)*rmax/nr
+        rstep = r[1]
         rinv = r*0.0
         rinv[1:] = 1.0/r[1:]
 
@@ -468,6 +469,11 @@ class diffraction(sfdata):
         self.pdbox = self.box_pair_distribution( box_nx, rmax, nr, xlim, ylim, zlim )
         self.pdbox[r>0] *= 1.0/(r[r>0]**2)
         print("done - time taken for box pair distribution:", time.perf_counter()-t0, "s" )
+
+        #window function
+        minl = np.min([xlim,ylim,zlim])
+        #w = r*0
+        #w[r>0] = np.sin( 2.0*np.pi*r[r>0]/minl)*minl/(2.0*np.pi*r[r>0])
 
         #plt.figure("r")
         #plt.plot(r)
@@ -543,17 +549,22 @@ class diffraction(sfdata):
         first_term = 0
         self.saxs_partial = np.zeros( (nelem,nelem,self.nx) ).astype(np.float64)
         self.normalisation = np.zeros( self.nx ).astype(np.float64)
+        self.normalisation2 = np.zeros( self.nx ).astype(np.float64)
+        natoms = 0
         for ie in np.arange(len(self.pdb.elements)):
             sf = self.sflist[ie].sf1d**2
             self.saxs += np.real(len(self.pdb.sorted_atom_list[ie])*sf)
             first_term +=  np.real(len(self.pdb.sorted_atom_list[ie])*sf)
-            self.normalisation += np.real(len(self.pdb.sorted_atom_list[ie])*sf)*(nr/rmax)
+            self.normalisation += np.real(len(self.pdb.sorted_atom_list[ie])*sf)
+            self.normalisation2 += np.real(len(self.pdb.sorted_atom_list[ie])*self.sflist[ie].sf1d)
+            natoms += len(self.pdb.sorted_atom_list[ie])
             for ie2 in np.arange(len(self.pdb.elements)):
-                self.partial_pd[ie,ie2,r>0] *= 1.0/(r[r>0]**2)
+                self.partial_pd[ie,ie2,r>0] *= (3.0/(4.0*np.pi))/(r[r>0]**2)
+                #self.partial_pd[ie,ie2,r>0] *= 1.0/( (r[r>0]+rstep)**3 - r[r>0]**3)
+                
                 norm = np.sum(self.partial_pd[ie,ie2,irnorm])/pdboxnorm         
                 self.partial_pd[ie,ie2,:] += -norm*self.pdbox
-                self.partial_pd[ie,ie2,:] *= nr/rmax
-                self.partial_pd[ie,ie2,:10] *= 0.0
+                #self.partial_pd[ie,ie2,:10] *= 0.0
                 if ie==ie2:
                     m=1
                 elif ie2<ie:
@@ -564,11 +575,13 @@ class diffraction(sfdata):
                 sf = self.sflist[ie].sf1d*self.sflist[ie2].sf1d
                 tmp = np.zeros( self.nx )
                 for ir in np.arange(nr):
-                   tmp += m*np.real(sf*self.partial_pd[ie,ie2,ir]*np.sin( 2*np.pi*self.q1d*r[ir])*r[ir])
-                tmp[self.q1d>0] *= 1.0/self.q1d[self.q1d>0]
+                   tmp += m*np.real(sf*self.partial_pd[ie,ie2,ir]*np.sin( 2*np.pi*self.q1d*r[ir])*r[ir]) #*w[ir]
+                tmp[self.q1d>0] *= 2.0/self.q1d[self.q1d>0]     
+                #note the original formula has 4pi in the nominator and 2pi in the numerator; so 2 here 
                 self.saxs += tmp
                 self.saxs_partial[ie,ie2,:] = tmp
         self.saxs *= 1.0/self.normalisation
+        #self.saxs *= 2.0*natoms/(self.normalisation2**2)
 
         for ie in np.arange(len(self.pdb.elements)):
             for ie2 in np.arange(len(self.pdb.elements)):
